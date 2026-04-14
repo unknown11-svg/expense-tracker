@@ -30,3 +30,20 @@ def delete_transaction( transaction_id : int, db: Session = Depends(get_db)):
     db.delete(transaction)
     db.commit()
     return None
+
+@router.get("/summary", response_model=schemas.SummaryOut)
+def get_summary(db: Session = Depends(get_db)):
+    income = (
+        db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
+        .filter(models.Transaction.type == models.TransactionType.income)
+        .scalar()
+    )
+
+    expenses = (
+        db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
+        .filter(models.Transaction.type == models.TransactionType.expense)
+        .scalar()
+    )
+
+    balance = income - expenses
+    return schemas.SummaryOut(income=income, expenses=expenses, balance=balance)

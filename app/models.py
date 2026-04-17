@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Float, Date, Enum
+from sqlalchemy import Column, Integer, String, Float, Date, Enum, Numeric
 from .database import Base
 
 class TransactionType(str, enum.Enum):
@@ -11,7 +11,7 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
-    amount = Column(Float, nullable=False)
+    amount = Column(Numeric(24, 2), nullable=False)
     type = Column(Enum(TransactionType), nullable=False)
-    category  = Column(String, nullable=True)
+    category  = Column(String, nullable=True, default="Other")
     date = Column(Date, nullable=False)

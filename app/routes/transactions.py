@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from decimal import Decimal
 
 from .. import models, schemas
 from ..database import get_db
@@ -33,17 +34,17 @@ def delete_transaction( transaction_id : int, db: Session = Depends(get_db)):
 
 @router.get("/summary", response_model=schemas.SummaryOut)
 def get_summary(db: Session = Depends(get_db)):
-    income = (
+    income = round((
         db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
         .filter(models.Transaction.type == models.TransactionType.income)
         .scalar()
-    )
+    ), 2)
 
-    expenses = (
+    expenses = round((
         db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
         .filter(models.Transaction.type == models.TransactionType.expense)
         .scalar()
-    )
+    ), 2)
 
-    balance = income - expenses
+    balance = round(income - expenses, 2)
     return schemas.SummaryOut(income=income, expenses=expenses, balance=balance)

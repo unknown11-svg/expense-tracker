@@ -32,6 +32,23 @@ def delete_transaction( transaction_id : int, db: Session = Depends(get_db)):
     db.commit()
     return None
 
+@router.put("/{transaction_id}", response_model=schemas.TransactionOut ,status_code = status.HTTP_200_OK)
+def update_transaction(transaction_id : int, payload: schemas.TransactionUpdate, db: Session = Depends(get_db)):
+    transaction = db.query(models.Transaction).filter(models.Transaction.id == transaction_id).first()
+
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    #key is the title/label and value is the updated value
+    #exclude_unset=True is so that we don't blindly update values not set
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        if hasattr(transaction, key):
+            setattr(transaction, key, value)
+
+    db.commit()
+    db.refresh(transaction)
+    return transaction
+
 @router.get("/summary", response_model=schemas.SummaryOut)
 def get_summary(db: Session = Depends(get_db)):
     income = round((

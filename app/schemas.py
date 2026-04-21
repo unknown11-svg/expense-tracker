@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import date
 from typing import Optional
 from pydantic import BaseModel, Field
@@ -11,6 +12,13 @@ class TransactionCreate(BaseModel):
     type: TransactionType
     category: Optional[str] = Field(None, max_length=50)
     date: date
+
+class TransactionUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=100)
+    amount: Optional[Decimal] = Field(None, gt=0)
+    type: Optional[TransactionType] = None
+    category: Optional[str] = Field(None, max_length=50)
+    date: Optional[date] = None
 
 class TransactionOut(BaseModel):
     id: int

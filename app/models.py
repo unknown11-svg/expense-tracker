@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Float, Date, Enum, Numeric
+from sqlalchemy import Column, Integer, String, Date, Enum, Numeric
 from .database import Base
 
 class TransactionType(str, enum.Enum):

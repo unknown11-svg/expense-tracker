@@ -80,8 +80,8 @@ def expense_category_breakdown(
     if start_date and end_date and end_date < start_date:
         raise HTTPException(status_code=400, detail="End date must be later than start date")
     
-    # query = db.query(models.Transaction).filter(models.Transaction.type == models.TransactionType.expense)
-    query = db.query(models.Transaction)
+    query = db.query(models.Transaction).filter(models.Transaction.type == models.TransactionType.expense)
+    
 
     if start_date:
         query = query.filter(models.Transaction.date >= start_date)
@@ -97,7 +97,7 @@ def expense_category_breakdown(
         .group_by(models.Transaction.category)
         .all()
     )
-    categories = db.query(models.Transaction.category).distinct().all()
+    # categories = db.query(models.Transaction.category).distinct().all()
     total_income = round((
         db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
         .filter(models.Transaction.type == models.TransactionType.income)

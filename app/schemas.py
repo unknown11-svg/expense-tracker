@@ -31,6 +31,12 @@ class TransactionOut(BaseModel):
     class Config:
         from_attributes = True
 
+class Income_ExpenseOut(BaseModel):
+    title: str
+    amount: Decimal
+    category: Optional[str]
+    date: date
+
 class SummaryOut(BaseModel):
     income: Decimal
     expenses: Decimal

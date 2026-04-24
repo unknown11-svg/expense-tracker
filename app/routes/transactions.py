@@ -49,19 +49,3 @@ def update_transaction(transaction_id : int, payload: schemas.TransactionUpdate,
     db.refresh(transaction)
     return transaction
 
-@router.get("/summary", response_model=schemas.SummaryOut)
-def get_summary(db: Session = Depends(get_db)):
-    income = round((
-        db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
-        .filter(models.Transaction.type == models.TransactionType.income)
-        .scalar()
-    ), 2)
-
-    expenses = round((
-        db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
-        .filter(models.Transaction.type == models.TransactionType.expense)
-        .scalar()
-    ), 2)
-
-    balance = round(income - expenses, 2)
-    return schemas.SummaryOut(income=income, expenses=expenses, balance=balance)

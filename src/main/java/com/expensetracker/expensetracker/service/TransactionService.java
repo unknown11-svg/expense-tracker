@@ -2,13 +2,19 @@ package com.expensetracker.expensetracker.service;
 
 import com.expensetracker.expensetracker.dto.TransactionRequest;
 import com.expensetracker.expensetracker.dto.TransactionResponse;
+import com.expensetracker.expensetracker.dto.Income_ExpensesResponse;
+import com.expensetracker.expensetracker.dto.SummaryResponse;
 import com.expensetracker.expensetracker.entity.Transaction;
+import com.expensetracker.expensetracker.entity.TransactionType;
+import com.expensetracker.expensetracker.exceptions.InvalidDateRangeException;
 import com.expensetracker.expensetracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +22,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
 
     //CREATE
+    @SuppressWarnings("null")
     public TransactionResponse createTransaction(TransactionRequest request){
         Transaction transaction = (Transaction.builder()
         .title(request.getTitle())
@@ -35,7 +42,7 @@ public class TransactionService {
     }
 
     // READ ONE
-    public TransactionResponse getTransactionById( Integer id){
+    public TransactionResponse getTransactionById( int id){
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found with id: "+ id));
 
         return mapToResponse(transaction);
@@ -43,11 +50,41 @@ public class TransactionService {
 
     //DELETE
 
-    public void deleteTransaction( Integer id){
+    public void deleteTransaction( int id){
         if(!transactionRepository.existsById(id)){
             throw new RuntimeException("Transaction not found with this id: "+ id);
         }
         transactionRepository.deleteById(id);
+    }
+
+    //Summary(Income, Expenses, Balance)
+    public SummaryResponse getSummary(){
+        BigDecimal income = transactionRepository.sumByType(TransactionType.income);
+        BigDecimal expenses = transactionRepository.sumByType(TransactionType.expense);
+        BigDecimal balance = income.subtract(expenses);
+
+        return new SummaryResponse(income, expenses, balance);
+    }
+
+    //Filtering (Expenses) - Optional[Date, Category]
+    public List<Income_ExpensesResponse> listExpenses(LocalDate startDate, LocalDate endDate, String category){
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)){
+            throw new InvalidDateRangeException("End date must be later than start date");
+        }
+
+        List<Transaction> transactions = transactionRepository.findTransactions(TransactionType.expense, startDate, endDate, category);
+
+        return transactions.stream().map(this::maptoIncExpResponse).collect(Collectors.toList());
+    }
+
+    public List<Income_ExpensesResponse> listIncome(LocalDate startDate, LocalDate endDate, String category){
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)){
+            throw new InvalidDateRangeException("End date must be later than start date");
+        }
+
+        List<Transaction> transactions = transactionRepository.findTransactions(TransactionType.income, startDate, endDate, category);
+
+        return transactions.stream().map(this::maptoIncExpResponse).collect(Collectors.toList());
     }
 
     //Helper: converts Entity -> Response DTO
@@ -57,6 +94,14 @@ public class TransactionService {
         .title(transaction.getTitle())
         .amount(transaction.getAmount())
         .type(transaction.getType())
+        .category(transaction.getCategory())
+        .date(transaction.getDate()).build());
+    }
+
+    private Income_ExpensesResponse maptoIncExpResponse(Transaction transaction){
+        return (Income_ExpensesResponse.builder()
+        .title(transaction.getTitle())
+        .amount(transaction.getAmount())
         .category(transaction.getCategory())
         .date(transaction.getDate()).build());
     }

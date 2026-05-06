@@ -4,6 +4,7 @@ import com.expensetracker.expensetracker.dto.Income_ExpensesResponse;
 import com.expensetracker.expensetracker.dto.SummaryResponse;
 import com.expensetracker.expensetracker.dto.TransactionRequest;
 import com.expensetracker.expensetracker.dto.TransactionResponse;
+import com.expensetracker.expensetracker.dto.TransactionUpdateRequest;
 import com.expensetracker.expensetracker.service.TransactionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
@@ -43,6 +44,14 @@ public class TransactionController {
         TransactionResponse transaction = transactionService.getTransactionById(id);
 
         return ResponseEntity.ok(transaction);
+    }
+
+    //UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionResponse> updateTransaction(@PathVariable Integer id, @Valid @RequestBody TransactionUpdateRequest payload){
+        TransactionResponse response = transactionService.updateTransaction(id, payload);
+        
+        return ResponseEntity.ok(response);
     }
 
     //DELETE

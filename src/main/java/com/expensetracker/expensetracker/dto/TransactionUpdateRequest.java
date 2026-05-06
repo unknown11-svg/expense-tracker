@@ -6,29 +6,30 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Data
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
-public class TransactionRequest {
-    @NotBlank(message = "Title is required")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TransactionUpdateRequest {
+    @Size(min = 1, max = 100, message = "Title must be between 1 and 100 characters")
     private String title;
 
-    @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
     private BigDecimal amount;
 
-    @NotNull(message = "Type is required")
     private TransactionType type;
 
+    @Size(max = 50, message = "Category must not exceed 50 characters")
     private String category;
 
-    @NotNull(message = "Date is required")
     @PastOrPresent(message = "Date cannot be in the future")
     private LocalDate date;
 
     public void normalizeCategory(){
         if(category != null){
             category = category.strip().toLowerCase();
-            if (category.isEmpty()){
+            if(category.isEmpty()){
                 category = "other";
             }
         }

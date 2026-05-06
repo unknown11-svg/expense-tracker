@@ -1,6 +1,7 @@
 package com.expensetracker.expensetracker.service;
 
 import com.expensetracker.expensetracker.dto.TransactionRequest;
+import com.expensetracker.expensetracker.dto.TransactionUpdateRequest;
 import com.expensetracker.expensetracker.dto.TransactionResponse;
 import com.expensetracker.expensetracker.dto.Income_ExpensesResponse;
 import com.expensetracker.expensetracker.dto.SummaryResponse;
@@ -46,6 +47,33 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found with id: "+ id));
 
         return mapToResponse(transaction);
+    }
+
+    //UPDATE
+    public TransactionResponse updateTransaction(int id, TransactionUpdateRequest payload){
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+
+        //Only update fields that are not null
+        if(payload.getTitle() != null){
+            transaction.setTitle(payload.getTitle());
+        }
+        if(payload.getAmount() != null){
+            transaction.setAmount(payload.getAmount());
+        }
+        if(payload.getType() != null){
+            transaction.setType(payload.getType());
+        }
+        if(payload.getCategory() != null){
+            payload.normalizeCategory();
+            transaction.setCategory(payload.getCategory());
+        }
+        if(payload.getDate() != null){
+            transaction.setDate(payload.getDate());
+        }
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        return mapToResponse(savedTransaction);
     }
 
     //DELETE

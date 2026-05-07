@@ -8,9 +8,12 @@ import com.expensetracker.expensetracker.dto.SummaryResponse;
 import com.expensetracker.expensetracker.entity.Transaction;
 import com.expensetracker.expensetracker.entity.TransactionType;
 import com.expensetracker.expensetracker.exceptions.InvalidDateRangeException;
+import com.expensetracker.expensetracker.exceptions.NotFoundException;
 import com.expensetracker.expensetracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +27,9 @@ public class TransactionService {
 
     //CREATE
     @SuppressWarnings("null")
+    @Transactional
     public TransactionResponse createTransaction(TransactionRequest request){
+        request.normalizeCategory();
         Transaction transaction = (Transaction.builder()
         .title(request.getTitle())
         .amount(request.getAmount())
@@ -39,19 +44,20 @@ public class TransactionService {
 
     //READ ALL
     public List<TransactionResponse> getAllTransactions(){
-        return transactionRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+        return transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "date")).stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     // READ ONE
     public TransactionResponse getTransactionById( int id){
-        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found with id: "+ id));
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new NotFoundException("Transaction not found with id: "+ id));
 
         return mapToResponse(transaction);
     }
 
     //UPDATE
+    @Transactional
     public TransactionResponse updateTransaction(int id, TransactionUpdateRequest payload){
-        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+        Transaction transaction = transactionRepository.findById(id).orElseThrow(() -> new NotFoundException("Transaction not found with id: " + id));
 
         //Only update fields that are not null
         if(payload.getTitle() != null){
@@ -78,9 +84,10 @@ public class TransactionService {
 
     //DELETE
 
+    @Transactional
     public void deleteTransaction( int id){
         if(!transactionRepository.existsById(id)){
-            throw new RuntimeException("Transaction not found with this id: "+ id);
+            throw new NotFoundException("Transaction not found with this id: "+ id);
         }
         transactionRepository.deleteById(id);
     }

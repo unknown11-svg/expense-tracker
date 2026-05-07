@@ -87,16 +87,16 @@ Load testing performed with k6. Each stack tested with identical workloads.
 
 When to Use Which
 ### Choose FastAPI when:
--Rapid prototyping and iteration speed matter
--Team is Python-heavy
--Project scope is small to medium
--Data science/ML integration is needed
+- Rapid prototyping and iteration speed matter
+- Team is Python-heavy
+- Project scope is small to medium
+- Data science/ML integration is needed
 
 ### Choose Spring Boot when:
--Enterprise-grade reliability is required
--Large team, long-lived codebase
--Compile-time type safety is non-negotiable
--Extensive Spring ecosystem needed (Security, Cloud, Batch)
+- Enterprise-grade reliability is required
+- Large team, long-lived codebase
+- Compile-time type safety is non-negotiable
+- Extensive Spring ecosystem needed (Security, Cloud, Batch)
 
 ## 📂 Project Structure
 

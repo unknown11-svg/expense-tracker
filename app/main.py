@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from .database import Base, engine
 from .routes.transactions import router as transaction_router
+from .routes.summary import router as summary_router
 
 with engine.connect():
     print("Database connection successful")
@@ -15,3 +16,4 @@ def root():
     return {"message": "Expense Tracker API is running"}
 
 app.include_router(transaction_router)
+app.include_router(summary_router)

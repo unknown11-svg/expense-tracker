@@ -69,7 +69,7 @@ public class TransactionController {
     }
 
     //Filtering
-    @GetMapping("/expenses")
+    @GetMapping("/summary/expenses")
     public ResponseEntity<List<Income_ExpensesResponse>> listExpense(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -78,7 +78,7 @@ public class TransactionController {
             return ResponseEntity.ok(expenses);
     }
 
-    @GetMapping("/income")
+    @GetMapping("/summary/income")
     public ResponseEntity<List<Income_ExpensesResponse>> listIncome(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

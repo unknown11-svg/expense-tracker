@@ -7,3 +7,4 @@ __pycache__/
 expenses.db
 .env
 Project.md
+venv/

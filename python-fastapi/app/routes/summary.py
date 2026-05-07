@@ -80,34 +80,35 @@ def expense_category_breakdown(
     if start_date and end_date and end_date < start_date:
         raise HTTPException(status_code=400, detail="End date must be later than start date")
     
-    query = db.query(models.Transaction).filter(models.Transaction.type == models.TransactionType.expense)
-    
+    expense_query = db.query(models.Transaction).filter(models.Transaction.type == models.TransactionType.expense)
 
     if start_date:
-        query = query.filter(models.Transaction.date >= start_date)
+        expense_query = expense_query.filter(models.Transaction.date >= start_date)
     if end_date:
-        query = query.filter(models.Transaction.date <= end_date)
-        
+        expense_query = expense_query.filter(models.Transaction.date <= end_date)
+
     results = (
-        db.query(
+        expense_query.with_entities(
             models.Transaction.category.label("category"),
             func.coalesce(func.sum(models.Transaction.amount), 0.0).label("total")
         )
-        .filter(models.Transaction.type == models.TransactionType.expense)
         .group_by(models.Transaction.category)
         .all()
     )
     # categories = db.query(models.Transaction.category).distinct().all()
+    # Compute totals using the same date filters so percentages are correct for the range
+    income_query = db.query(models.Transaction).filter(models.Transaction.type == models.TransactionType.income)
+    if start_date:
+        income_query = income_query.filter(models.Transaction.date >= start_date)
+    if end_date:
+        income_query = income_query.filter(models.Transaction.date <= end_date)
+
     total_income = round((
-        db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
-        .filter(models.Transaction.type == models.TransactionType.income)
-        .scalar()
+        income_query.with_entities(func.coalesce(func.sum(models.Transaction.amount), 0.0)).scalar()
     ), 2)
 
     total_expenses = round((
-        db.query(func.coalesce(func.sum(models.Transaction.amount), 0.0))
-        .filter(models.Transaction.type == models.TransactionType.expense)
-        .scalar()
+        expense_query.with_entities(func.coalesce(func.sum(models.Transaction.amount), 0.0)).scalar()
     ), 2)
 
     # for (category,) in categories:

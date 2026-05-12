@@ -17,9 +17,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
     BigDecimal sumByType(@Param("type") TransactionType type);
 
     @Query("SELECT t FROM Transaction t WHERE t.type = :type " + 
-    "AND (:startDate IS NULL OR t.date >= :startDate) " + 
-    "AND (:endDate IS NULL OR t.date <= :endDate) " + 
-    "AND (:category IS NULL OR t.category = :category) " +
+    "AND (CAST(:startDate AS LocalDate) IS NULL OR t.date >= :startDate) " + 
+    "AND (CAST(:endDate AS LocalDate) IS NULL OR t.date <= :endDate) " + 
+    "AND (CAST(:category AS String) IS NULL OR t.category = :category) " +
     "ORDER BY t.date DESC")
     List<Transaction> findTransactions(
         @Param("type") TransactionType type,

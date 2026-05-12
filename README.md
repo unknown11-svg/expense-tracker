@@ -83,6 +83,18 @@ Load testing performed with k6. Each stack tested with identical workloads.
 | Memory Usage (load) | TBD | TBD |
 | Startup Time | TBD | TBD |
 
+---
+| Metric | FastAPI(Python) | Spring Boot(Java) |
+|--------|---------|-------------|
+| Success Rate | 100% | 100% |
+| Avg Response Time | 1.09s | 55ms |
+| P95 Response Time (GET) | 2.25s | 193ms |
+| P95 Response Time (POST) | TBD | TBD |
+| Requests/sec | 18.6 | 44.2 |
+| Summary Avg | 1125ms | 48ms |
+| Expenses Avg | 1098ms | 71ms |
+| Create Avg | 1062ms | 47ms |
+
 ## Key Takeaways
 
 When to Use Which

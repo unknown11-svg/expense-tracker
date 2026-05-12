@@ -7,7 +7,7 @@ from datetime import date
 from .. import models, schemas
 from ..database import get_db
 
-router = APIRouter(prefix="transactions/summary", tags=["Summary"])
+router = APIRouter(prefix="/transactions/summary", tags=["Summary"])
 
 @router.get("/", response_model=schemas.SummaryOut)
 def get_summary(db: Session = Depends(get_db)):
